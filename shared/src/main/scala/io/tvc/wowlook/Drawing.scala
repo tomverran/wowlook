@@ -7,6 +7,8 @@ import cats.syntax.flatMap._
 import scala.xml.{Elem, NodeBuffer}
 import Snip._
 
+import scala.math.BigDecimal.RoundingMode
+
 /**
   * Snipping aware SVG drawing functions
   * used throughout all the charts
@@ -67,7 +69,7 @@ object Drawing {
             <text
               x={box.startX.toString}
               y={box.endY.toString}
-            >{(maxValue / precision) * y}
+            >{((maxValue / precision) * y).setScale(2, RoundingMode.HALF_UP)}
           </text>
       }.map { _ &+
         <line

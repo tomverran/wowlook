@@ -52,7 +52,7 @@ object BarGraph {
       maxValue: BigDecimal
     ): Snip[NodeBuffer] =
       current.flatMap { box =>
-        val seriesWidth = box.width / series.size
+        val seriesWidth = box.width / graph.data.countS
         series.foldLeft(pure(new NodeBuffer)) { case (nb, (s, bd)) =>
           for {
             buffer <- nb
@@ -75,7 +75,7 @@ object BarGraph {
         graph.data.values.foldLeft(Snip.pure(new NodeBuffer)) { case (canvas, (_, s)) =>
           for {
             buffer <- canvas
-            bars <- use(chopLeft(xFactor), pad(0, 20) >> drawSeriesBars(s, opts, yFactor))
+            bars <- use(chopLeft(xFactor), pad(0, 5) >> drawSeriesBars(s, opts, yFactor))
           } yield buffer &+ bars
         }
       }
@@ -89,7 +89,7 @@ object BarGraph {
         for {
           _       <- pad(5, 50)
           title   <- use(chopTop(20), title(opts.title))
-          yAxis   <- use(chopLeft(40), chopBottom(20) >> yLabels(graph.data.max, 10))
+          yAxis   <- use(chopLeft(60), chopBottom(20) >> yLabels(graph.data.max, 10))
           xAxis   <- use(chopBottom(20), xLabels(graph.data))
           data    <- drawAllBars(opts)
         } yield svg(opts)(yAxis &+ xAxis &+ data &+ title)
