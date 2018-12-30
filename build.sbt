@@ -1,15 +1,17 @@
-name in ThisBuild := "wow-look"
+name := "wowlook"
 
-version in ThisBuild := "0.1"
+organization in ThisBuild := "io.tvc"
+
+version in ThisBuild := "0.1-SNAPSHOT"
 
 scalaVersion in ThisBuild := "2.12.8"
 
-resolvers in ThisBuild += Resolver.sonatypeRepo("releases")
+resolvers += Resolver.sonatypeRepo("releases")
 
-scalacOptions in ThisBuild ++= Seq("-Ypartial-unification", "-feature")
+scalacOptions ++= Seq("-Ypartial-unification", "-feature")
 
-import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
-lazy val project = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Full) in file("."))
+import sbtcrossproject.CrossPlugin.autoImport.crossProject
+lazy val wowlook = (crossProject(JSPlatform, JVMPlatform) in file("."))
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "1.5.0",
@@ -25,3 +27,7 @@ lazy val project = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Fu
       "org.slf4j" % "slf4j-simple" % "1.7.25"
     )
   )
+
+lazy val root = project.in(file("."))
+  .aggregate(wowlook.js, wowlook.jvm)
+  .settings(publish := {}, publishLocal := {})
