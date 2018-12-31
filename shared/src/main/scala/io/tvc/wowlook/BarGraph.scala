@@ -85,15 +85,6 @@ object BarGraph {
       * This can then be saved to a file or embedded in a web page
       */
     def render(opts: DrawingOptions[S]): Elem =
-      (
-        for {
-          _       <- pad(5, 50)
-          title   <- use(chopTop(20), title(opts.title))
-          yAxis   <- use(chopLeft(60), chopBottom(80) >> yLabels(graph.data.max, 10))
-          key     <- use(chopBottom(60), key(graph.data, opts))
-          xAxis   <- use(chopBottom(20), xLabels(graph.data))
-          data    <- drawAllBars(opts)
-        } yield svg(opts)(data &+ title &+ yAxis &+ key &+ xAxis)
-      ).runA(BoundingBox(0, 0, opts.xSize, opts.ySize)).value
+      entireGraph(graph.data, opts, drawAllBars(opts))
   }
 }

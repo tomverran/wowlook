@@ -1,9 +1,8 @@
 package io.tvc.wowlook
+import cats.Show
 import cats.instances.bigDecimal._
 import io.tvc.wowlook.Drawing._
-import cats.syntax.flatMap._
-import Snip._
-import cats.Show
+import io.tvc.wowlook.Snip._
 
 import scala.collection.SortedMap
 import scala.xml.{Elem, NodeBuffer}
@@ -86,15 +85,6 @@ object LineGraph {
       * This can then be saved to a file or embedded in a web page
       */
     def render(opts: DrawingOptions[S]): Elem =
-      (
-        for {
-          _     <- pad(5, 50)
-          title <- use(chopTop(20), title(opts.title))
-          yAxis <- use(chopLeft(60), chopBottom(80) >> yLabels(graph.data.max, 10))
-          key   <- use(chopBottom(60), key(graph.data, opts))
-          xAxis <- use(chopBottom(20), xLabels(graph.data))
-          data  <- drawAllLines(opts)
-        } yield svg(opts)(yAxis &+ markers(opts) &+ data &+ title &+ key &+ xAxis)
-      ).runA(BoundingBox(0, 0, opts.xSize, opts.ySize)).value
+      entireGraph(graph.data, opts, drawAllLines(opts).map(_ &+ markers(opts)))
   }
 }

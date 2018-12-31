@@ -5,6 +5,7 @@ import java.awt.Color
 import cats.syntax.flatMap._
 
 import scala.xml.{Elem, NodeBuffer}
+import cats.instances.bigDecimal._
 import Snip._
 
 import scala.collection.immutable.SortedSet
@@ -164,4 +165,25 @@ object Drawing {
             >{s.toString}</text>
       }
     }
+
+  /**
+    * Draw an entire graph,
+    * given enough information to construct axes
+    * and a snip containing graph content to draw
+    */
+  def entireGraph[X: Ordering, S: Ordering](
+    data: DataTable[X, S, BigDecimal],
+    opts: DrawingOptions[S],
+    content: Snip[NodeBuffer]
+  ): Elem =
+    (
+      for {
+        _       <- pad(5, 50)
+        title   <- use(chopTop(20), title(opts.title))
+        yAxis   <- use(chopLeft(60), chopBottom(80) >> yLabels(data.max, 10))
+        key     <- use(chopBottom(60), key(data, opts))
+        xAxis   <- use(chopBottom(20), xLabels(data))
+        data    <- content
+      } yield svg(opts)(data &+ title &+ yAxis &+ key &+ xAxis)
+    ).runA(BoundingBox(0, 0, opts.xSize, opts.ySize)).value
 }
