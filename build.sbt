@@ -2,17 +2,16 @@ name := "wowlook"
 
 organization in ThisBuild := "io.tvc"
 
-version in ThisBuild := "0.1-SNAPSHOT"
-
-scalaVersion in ThisBuild := "2.12.8"
-
 resolvers += Resolver.sonatypeRepo("releases")
 
 scalacOptions ++= Seq("-Ypartial-unification", "-feature")
 
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 lazy val wowlook = (crossProject(JSPlatform, JVMPlatform) in file("."))
+  .enablePlugins(GitVersioning)
   .settings(
+    git.useGitDescribe := true,
+    git.gitTagToVersionNumber := (tag => Some(tag).filter(_.matches("[0-9]+\\..*"))),
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "1.5.0",
       "org.typelevel" %%% "cats-effect" % "1.1.0",
