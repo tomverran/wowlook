@@ -2,7 +2,7 @@ name := "wowlook"
 
 organization in ThisBuild := "io.tvc"
 
-licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
+licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
 resolvers += Resolver.sonatypeRepo("releases")
 
