@@ -29,4 +29,9 @@ These are screenshots of the examples in `jvm/.../Examples.scala`
 
 #### Bar Chart
 
-![image](https://user-images.githubusercontent.com/1388226/50558867-5e44ef00-0ce9-11e9-9d28-76ccafaec016.png)
+![image](https://user-images.githubusercontent.com/1388226/50562353-28b0fd80-0d0b-11e9-837f-67005add8923.png)
+
+#### Line Chart
+
+![image](https://user-images.githubusercontent.com/1388226/50562357-349cbf80-0d0b-11e9-9334-cec9981a4c2f.png)
+
