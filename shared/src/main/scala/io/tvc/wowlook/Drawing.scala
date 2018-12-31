@@ -144,7 +144,6 @@ object Drawing {
       val series = data.values.map(_._2.keySet).foldLeft(SortedSet.empty[S]) { case (s, s1) => s ++ s1 }
       val xWidth = box.width / series.size
       val radius = 6
-      println(series)
 
       series.foldLeft(Snip.pure(new NodeBuffer)) { case (nb, s) =>
           for {

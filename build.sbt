@@ -16,15 +16,16 @@ lazy val wowlook = (crossProject(JSPlatform, JVMPlatform) in file("."))
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "1.5.0",
       "org.typelevel" %%% "cats-effect" % "1.1.0",
-      "org.scalatest" %%% "scalatest" % "3.0.0" % Test,
-      "org.typelevel" %%% "cats-testkit" % "1.5.0" % Test,
       "org.scala-lang.modules" %%% "scala-xml" % "1.1.1",
       compilerPlugin("org.spire-math" % "kind-projector" % "0.9.8").cross(CrossVersion.binary),
     )
   )
   .jvmSettings(
     libraryDependencies ++= Seq(
-      "org.slf4j" % "slf4j-simple" % "1.7.25"
+      "org.slf4j" % "slf4j-simple" % "1.7.25",
+      "org.scalacheck" %% "scalacheck" % "1.14.0" % Test,
+      "org.typelevel" %%% "cats-testkit" % "1.5.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.0.5" % Test
     )
   )
 

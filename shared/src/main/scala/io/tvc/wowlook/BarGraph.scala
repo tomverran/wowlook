@@ -52,7 +52,7 @@ object BarGraph {
       maxValue: BigDecimal
     ): Snip[NodeBuffer] =
       current.flatMap { box =>
-        val seriesWidth = box.width / graph.data.countS
+        val seriesWidth = box.width / graph.data.countSeries
         series.foldLeft(pure(new NodeBuffer)) { case (nb, (s, bd)) =>
           for {
             buffer <- nb
@@ -69,7 +69,7 @@ object BarGraph {
     private def drawAllBars(opts: DrawingOptions[S]): Snip[NodeBuffer] =
       Snip.current.flatMap { box =>
 
-        val xFactor = box.width / graph.data.countX
+        val xFactor = box.width / graph.data.countXValues
         val yFactor: BigDecimal = graph.data.max
 
         graph.data.values.foldLeft(Snip.pure(new NodeBuffer)) { case (canvas, (_, s)) =>

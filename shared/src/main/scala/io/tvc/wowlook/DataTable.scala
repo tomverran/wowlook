@@ -97,10 +97,10 @@ object DataTable {
     /**
       * How many x-coordinates are there in the table?
       */
-    def countX: Int =
+    def countXValues: Int =
       dt.values.keys.size
 
-    def countS: Int =
+    def countSeries: Int =
       dt.values.foldLeft(0) { case (ac, sm) => Math.max(ac, sm._2.keys.size) }
 
     def max(implicit ordering: Ordering[V], monoid: Monoid[V]): V =
