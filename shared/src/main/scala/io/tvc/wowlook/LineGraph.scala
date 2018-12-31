@@ -18,6 +18,9 @@ object LineGraph {
 
   implicit class LineGraphOps[X: Ordering, S: Ordering: Show](graph: LineGraph[X, S]) {
 
+    private val zero: BigDecimal =
+      BigDecimal(0)
+
     def plot(x: X, s: S, v: BigDecimal): LineGraph[X, S] =
       graph.copy(data = graph.data.add(x, s, v))
 
@@ -61,8 +64,8 @@ object LineGraph {
             area <- chopLeft(xWidth)
           } yield {
             allSeries.foldLeft(accumulator) { case (acc, s) =>
-              val coord = s" ${area.centreX},${(series.getOrElse(s, BigDecimal(0)) / maxValue) * box.height}"
-              acc.updated(s, acc.getOrElse(s, "") + coord)
+              val c = s" ${area.centreX},${box.endY - ((series.getOrElse(s, zero) / maxValue) * box.height)}"
+              acc.updated(s, acc.getOrElse(s, "") + c)
             }
           }
         }.map { lines =>
