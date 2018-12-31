@@ -1,6 +1,6 @@
 ## Wow, look!
 
-[![Build Status](https://travis-ci.org/tomverran/wowlook.svg?branch=master)](https://travis-ci.org/tomverran/wowlook)
+[![Build Status](https://travis-ci.org/tomverran/wowlook.svg?branch=master)](https://travis-ci.org/tomverran/wowlook) [![Download](https://api.bintray.com/packages/tomverran/maven/wowlook/images/download.svg) ](https://bintray.com/tomverran/maven/wowlook/_latestVersion)
 
 A charting library for Scala and Scala JS.
 This is currently in the **very early** stages of development so doesn't work really.
