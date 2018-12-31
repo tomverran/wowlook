@@ -2,6 +2,8 @@ name := "wowlook"
 
 organization in ThisBuild := "io.tvc"
 
+licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
+
 resolvers += Resolver.sonatypeRepo("releases")
 
 scalacOptions ++= Seq("-Ypartial-unification", "-feature")

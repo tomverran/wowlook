@@ -24,3 +24,9 @@ before_cache:
 script: |
   set -e
   sbt ++$TRAVIS_SCALA_VERSION test
+
+deploy:
+  provider: script
+  script: sbt publish
+  on:
+    tags: true
