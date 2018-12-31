@@ -28,5 +28,6 @@ script: |
 deploy:
   provider: script
   script: sbt publish
+  skip_cleanup: true
   on:
     tags: true
