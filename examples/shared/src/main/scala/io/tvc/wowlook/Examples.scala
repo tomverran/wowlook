@@ -1,26 +1,22 @@
 package io.tvc.wowlook
 
 import cats.instances.string._
-import io.tvc.wowlook.Drawing.DrawingOptions
-import java.awt.Color
-import java.nio.file.{Files, Paths}
+import Drawing.DrawingOptions
 
-object Examples extends App {
+object Examples {
 
-  def writeFile(content: xml.Elem, name: String): Unit =
-    Files.write(Paths.get(name), content.mkString.getBytes)
-
-  val options = DrawingOptions[String](
-    series = {
-      case "Shiny people" => new Color(0xdd3333)
-      case "Happy people" => new Color(0x33dd33)
-    },
-    axes = new Color(0x8e8e8e),
-    grid = new Color(0xdedede),
-    title = "Impact of REM on society",
-    xSize = 600,
-    ySize = 300
-  )
+  val options: DrawingOptions[String] =
+    DrawingOptions[String](
+      series = {
+        case "Shiny people" => Colour(0xdd3333)
+        case "Happy people" => Colour(0x33dd33)
+      },
+      axes = Colour(0x8e8e8e),
+      grid = Colour(0xdedede),
+      title = "Impact of REM on society",
+      xSize = 600,
+      ySize = 300
+    )
 
   val barData = List(
     "1999" -> List(
@@ -54,7 +50,4 @@ object Examples extends App {
     barData.foldLeft(LineGraph.empty[String, String]) { case (bg, (year, rem)) =>
       rem.foldLeft(bg) { case (g, (series, number)) => g.plot(year, series, BigDecimal(number)) }
     }
-
-  writeFile(barChart.render(options), "bar.svg")
-  writeFile(lineGraph.render(options), "line.svg")
 }

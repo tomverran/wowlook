@@ -9,6 +9,7 @@ resolvers += Resolver.sonatypeRepo("releases")
 scalacOptions ++= Seq("-Ypartial-unification", "-feature")
 
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
+
 lazy val wowlook = (crossProject(JSPlatform, JVMPlatform) in file("."))
   .enablePlugins(GitVersioning)
   .settings(
@@ -31,6 +32,10 @@ lazy val wowlook = (crossProject(JSPlatform, JVMPlatform) in file("."))
   )
 
 lazy val examples = (crossProject(JSPlatform, JVMPlatform) in file("examples"))
+  .jsSettings(
+    scalaJSUseMainModuleInitializer := true,
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2"
+  )
   .settings(publish := {}, publishLocal := {})
   .dependsOn(wowlook)
 

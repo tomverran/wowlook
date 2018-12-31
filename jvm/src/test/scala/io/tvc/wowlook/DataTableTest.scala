@@ -1,6 +1,7 @@
-package io.tvc.wowlook
+package wowlook
 import org.scalatest.{Matchers, WordSpec}
 import cats.instances.int._
+import io.tvc.wowlook.DataTable
 
 import scala.collection.immutable.SortedMap
 

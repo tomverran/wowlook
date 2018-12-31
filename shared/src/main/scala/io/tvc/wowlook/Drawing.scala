@@ -7,7 +7,7 @@ import cats.syntax.flatMap._
 import scala.xml.{Elem, NodeBuffer}
 import cats.instances.bigDecimal._
 import Snip._
-import io.tvc.wowlook.HexColor.hexString
+import io.tvc.wowlook.Colour.hexString
 
 import scala.collection.immutable.SortedSet
 import scala.math.BigDecimal.RoundingMode
@@ -31,9 +31,9 @@ object Drawing {
   private val labelPadding = 4
 
   case class DrawingOptions[A](
-    series: A => Color,
-    axes: Color,
-    grid: Color,
+    series: A => Colour,
+    axes: Colour,
+    grid: Colour,
     title: String,
     xSize: Int,
     ySize: Int

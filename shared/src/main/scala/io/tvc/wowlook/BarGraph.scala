@@ -1,5 +1,4 @@
 package io.tvc.wowlook
-import java.awt.Color
 
 import cats.instances.bigDecimal._
 import cats.syntax.flatMap._
@@ -8,7 +7,7 @@ import io.tvc.wowlook.Snip._
 
 import scala.collection.immutable.SortedMap
 import scala.xml.{Elem, NodeBuffer}
-import HexColor._
+import Colour._
 
 case class BarGraph[X, S](
   data: DataTable[X, S, BigDecimal]
@@ -31,14 +30,14 @@ object BarGraph {
       * Draw a single bar of the given height + colour,
       * taking up the entire area within the snip
       */
-    private def drawBar(color: Color, height: BigDecimal): Snip[Elem] =
+    private def drawBar(colour: Colour, height: BigDecimal): Snip[Elem] =
       current.map { box =>
         <rect
           x={box.startX.toString}
           y={(box.endY - height).toString}
           width={box.width.toString}
           height={height.toString}
-          fill={hexString(color)}>
+          fill={hexString(colour)}>
         </rect>
       }
 

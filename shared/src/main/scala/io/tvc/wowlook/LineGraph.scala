@@ -1,8 +1,10 @@
 package io.tvc.wowlook
+
 import cats.Show
 import cats.instances.bigDecimal._
-import io.tvc.wowlook.Drawing._
-import io.tvc.wowlook.Snip._
+import Drawing._
+import Snip._
+import io.tvc.wowlook.Colour.hexString
 
 import scala.collection.SortedMap
 import scala.xml.{Elem, NodeBuffer}
@@ -40,7 +42,7 @@ object LineGraph {
       {
         graph.data.series.map { series =>
           <marker id={seriesSlug(series)} markerHeight="4" markerWidth="4" refX="2" refY="2">
-            <circle cx="2" cy="2" r="2" stroke="none" fill={HexColor.hexString(opts.series(series))}/>
+            <circle cx="2" cy="2" r="2" stroke="none" fill={hexString(opts.series(series))}/>
           </marker>
         }
       }
@@ -75,7 +77,7 @@ object LineGraph {
               marker-start={s"url(#${seriesSlug(s)})"}
               marker-mid={s"url(#${seriesSlug(s)})"}
               marker-end={s"url(#${seriesSlug(s)})"}
-              stroke={HexColor.hexString(opts.series(s))}
+              stroke={hexString(opts.series(s))}
               stroke-linecap="round"
               fill="none"
             />
