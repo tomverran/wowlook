@@ -7,6 +7,7 @@ import cats.syntax.flatMap._
 import scala.xml.{Elem, NodeBuffer}
 import Snip._
 
+import scala.collection.immutable.SortedSet
 import scala.math.BigDecimal.RoundingMode
 
 /**
@@ -14,6 +15,18 @@ import scala.math.BigDecimal.RoundingMode
   * used throughout all the charts
   */
 object Drawing {
+
+  /**
+    * How long the little sticks coming out of the axes are
+    * I don't really know what their actual name is
+    */
+  private val graduationLength = 5
+
+  /**
+    * How much space to leave between the top of graduation labels
+    * and the above graduations
+    */
+  private val labelPadding = 4
 
   case class DrawingOptions[A](
     series: A => Color,
@@ -29,9 +42,10 @@ object Drawing {
     * setting the width & height from the render options
     */
   def svg[A](opts: DrawingOptions[A])(elems: NodeBuffer): xml.Elem =
-    <svg viewBox={s"0 0 ${opts.xSize} ${opts.ySize}"} xmlns="http://www.w3.org/2000/svg">
-      {elems}
-    </svg>
+    <svg
+      viewBox={s"0 0 ${opts.xSize} ${opts.ySize}"} xmlns="http://www.w3.org/2000/svg"
+      font-family="sans-serif"
+    >{elems}</svg>
 
   /**
     * Render a centered graph title,
@@ -40,7 +54,6 @@ object Drawing {
   def title(title: String): Snip[Elem] =
     pad(5, 0) >> current.map { box =>
       <text
-        text-size="12"
         text-anchor="middle"
         x={box.centreX.toString}
         y={box.endY.toString}
@@ -60,14 +73,16 @@ object Drawing {
             box <- chopBottom(yHeight)
           } yield buffer &+
             <line
-              x1={(box.endX - 5).toString}
+              x1={(box.endX - graduationLength).toString}
               x2={box.endX.toString}
               y1={box.endY.toString}
               y2={box.endY.toString}
               stroke="black"
-            ></line>
+            />
             <text
-              x={box.startX.toString}
+              text-anchor="end"
+              dominant-baseline="central"
+              x={(box.endX - graduationLength - labelPadding).toString}
               y={box.endY.toString}
             >{((maxValue / precision) * y).setScale(2, RoundingMode.HALF_UP)}
           </text>
@@ -78,7 +93,7 @@ object Drawing {
           y1={remainder.startY.toString}
           y2={remainder.endY.toString}
           stroke="black"
-        ></line>
+        />
       }
     }
 
@@ -96,17 +111,18 @@ object Drawing {
         } yield buffer &+
           <text
             text-anchor="middle"
+            dominant-baseline="hanging"
             x={box.centreX.toString}
-            y={box.endY.toString}
+            y={(box.startY + graduationLength + labelPadding).toString}
           >{s"$x"}
           </text> &+
           <line
             x1={box.centreX.toString}
             x2={box.centreX.toString}
             y1={box.startY.toString}
-            y2={(box.startY + 5).toString}
+            y2={(box.startY + graduationLength).toString}
             stroke="black"
-          ></line>
+          />
       }.map { _ &+
         <line
           x1={box.startX.toString}
@@ -114,7 +130,39 @@ object Drawing {
           y1={box.startY.toString}
           y2={box.startY.toString}
           stroke="black"
-        ></line>
+        />
+      }
+    }
+
+  /**
+    * Create a key explaining which series correspond to which colours on the graph
+    * Designed to be displayed horizontally beneath the x-axis
+    */
+  def key[X: Ordering, S: Ordering, V](data: DataTable[X, S, V], opts: DrawingOptions[S]): Snip[NodeBuffer] =
+    current.flatMap { box =>
+
+      val series = data.values.map(_._2.keySet).foldLeft(SortedSet.empty[S]) { case (s, s1) => s ++ s1 }
+      val xWidth = box.width / series.size
+      val radius = 6
+      println(series)
+
+      series.foldLeft(Snip.pure(new NodeBuffer)) { case (nb, s) =>
+          for {
+            buffer <- nb
+            current <- chopLeft(xWidth)
+          } yield buffer &+
+            <circle
+              r={radius.toString}
+              fill={HexColor.hexString(opts.series(s))}
+              cx={(current.startX + radius).toString}
+              cy={current.centreY.toString}
+            /> &+
+            <text
+              text-anchor="start"
+              dominant-baseline="central"
+              x={(current.startX + (radius * 2) + labelPadding).toString}
+              y={current.centreY.toString}
+            >{s.toString}</text>
       }
     }
 }
