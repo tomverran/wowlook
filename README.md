@@ -15,14 +15,6 @@ trying to either use existing Java libraries or Google Charts with ScalaJS.
 As such this library generates simple (maybe _too_ simple) SVG charts.
 An example of use can be found in `jvm/.../Examples.scala`
 
-### To do
-
-- An actually working distribution graph
-- A line graph, used as the basis for the above
-- A key so you can see what the series are
-- Some actual tests of some description
-- Better use of CSS classes
-
 ### Screenshots
 
 These are screenshots of the examples in `jvm/.../Examples.scala`
