@@ -20,3 +20,11 @@ An example of use can be found in `jvm/.../Examples.scala`
 - A key so you can see what the series are
 - Some actual tests of some description
 - Better use of CSS classes
+
+### Screenshots
+
+These are screenshots of the examples in `jvm/.../Examples.scala`
+
+#### Bar Chart
+
+![image](https://user-images.githubusercontent.com/1388226/50558867-5e44ef00-0ce9-11e9-9d28-76ccafaec016.png)
