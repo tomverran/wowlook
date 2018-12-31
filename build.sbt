@@ -28,6 +28,10 @@ lazy val wowlook = (crossProject(JSPlatform, JVMPlatform) in file("."))
     )
   )
 
-lazy val root = project.in(file("."))
-  .aggregate(wowlook.js, wowlook.jvm)
+lazy val examples = (crossProject(JSPlatform, JVMPlatform) in file("examples"))
   .settings(publish := {}, publishLocal := {})
+  .dependsOn(wowlook)
+
+lazy val root = project.in(file("."))
+  .settings(publish := {}, publishLocal := {})
+  .aggregate(wowlook.js, wowlook.jvm)
