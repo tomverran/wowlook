@@ -52,7 +52,7 @@ object BarGraph {
       maxValue: BigDecimal
     ): Snip[NodeBuffer] =
       current.flatMap { box =>
-        val seriesWidth = box.width / graph.data.countSeries
+        val seriesWidth = box.width / graph.data.series.size
         series.foldLeft(pure(new NodeBuffer)) { case (nb, (s, bd)) =>
           for {
             buffer <- nb

@@ -7,7 +7,7 @@ import cats.syntax.foldable._
 import cats.syntax.functor._
 import cats.syntax.monoid._
 
-import scala.collection.immutable.SortedMap
+import scala.collection.immutable.{SortedMap, SortedSet}
 import scala.language.higherKinds
 
 /**
@@ -36,37 +36,6 @@ object DataTable {
       */
     def fold[B](z: B)(f: X => S => V => B => B): B =
       dt.values.foldLeft(z) { case (b, (x, ss)) => ss.foldLeft(b) { case (bb, (s, v)) => f(x)(s)(v)(bb) }}
-
-    /**
-      * Implementation of fold for types which have a Monoid instance available
-      */
-    def foldM[B](f: X => S => V => B)(implicit B: Monoid[B]): B =
-      fold(B.empty)(x => s => v => b => b |+| f(x)(s)(v))
-
-    /**
-      * Convenience method to fold while accumulating the number of X values enumerated over
-      * This is actually kind of tricky you see
-      */
-    def foldWithIndex[B](z: B)(f: (X, Int) => S => V => B => B): B =
-      fold[(B, (Int, Option[X]))](z -> (0 -> None)) { x => s => v => {
-        case (b, (i, prev)) if !prev.contains(x) => f(x, i + 1)(s)(v)(b) -> (i + 1, Some(x))
-        case (b, (i, prev)) => f(x, i)(s)(v)(b) -> (i, prev)
-      }}._1
-
-
-    def foldX[B](f: (S, V) => B)(implicit B: Monoid[B]): SortedMap[X, B] =
-      dt.values.mapValues(_.foldLeft(B.empty) { case (b, (s, v)) => b |+| f(s, v) })
-
-    /**
-      * Swap round the series and X-Axis in this Data Table
-      * so the X axis becomes the series and vice versa
-      */
-    def sequence: DataTable[S, X, V] =
-      DataTable(
-        fold(SortedMap.empty[S, SortedMap[X, V]]) { x => s => v => map =>
-          map.updated(s, map.getOrElse(s, SortedMap.empty[X, V]).updated(x, v))
-        }
-      )
 
     /**
       * Add a value to this DataTable
@@ -100,9 +69,16 @@ object DataTable {
     def countXValues: Int =
       dt.values.keys.size
 
-    def countSeries: Int =
-      dt.values.foldLeft(0) { case (ac, sm) => Math.max(ac, sm._2.keys.size) }
+    /**
+      * Obtain a set of every series plotted into this table
+      * not every x-coordinate will necessarily have a point for every series
+      */
+    def series: SortedSet[S] =
+      dt.values.foldLeft(SortedSet.empty[S]) { case (ac, sm) => ac ++ sm._2.keySet }
 
+    /**
+      * Find the maximum value in the table
+      */
     def max(implicit ordering: Ordering[V], monoid: Monoid[V]): V =
       fold(monoid.empty)(_ => _ => (ordering.max _).curried)
 
