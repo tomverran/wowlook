@@ -15,9 +15,9 @@ object Examples extends App {
       case "Shiny people" => new Color(0xdd3333)
       case "Happy people" => new Color(0x33dd33)
     },
-    axes = Color.GRAY,
-    grid = Color.GRAY,
-    title = "Calorie Distribution",
+    axes = new Color(0x8e8e8e),
+    grid = new Color(0xdedede),
+    title = "Impact of REM on society",
     xSize = 600,
     ySize = 300
   )
@@ -55,6 +55,6 @@ object Examples extends App {
       rem.foldLeft(bg) { case (g, (series, number)) => g.plot(year, series, BigDecimal(number)) }
     }
 
-  writeFile(barChart.render(options.copy(title = "Impact of REM on society")), "bar.svg")
-  writeFile(lineGraph.render(options.copy(title = "Impact of REM on society")), "line.svg")
+  writeFile(barChart.render(options), "bar.svg")
+  writeFile(lineGraph.render(options), "line.svg")
 }

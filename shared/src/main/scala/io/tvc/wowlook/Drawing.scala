@@ -7,6 +7,7 @@ import cats.syntax.flatMap._
 import scala.xml.{Elem, NodeBuffer}
 import cats.instances.bigDecimal._
 import Snip._
+import io.tvc.wowlook.HexColor.hexString
 
 import scala.collection.immutable.SortedSet
 import scala.math.BigDecimal.RoundingMode
@@ -53,19 +54,41 @@ object Drawing {
     * applies a bit of padding first
     */
   def title(title: String): Snip[Elem] =
-    pad(5, 0) >> current.map { box =>
+    pad(10, 0) >> current.map { box =>
       <text
         text-anchor="middle"
         x={box.centreX.toString}
-        y={box.endY.toString}
+        y={box.startY.toString}
       >{title}</text>
+    }
+
+  /**
+    * Draw horizontal grid lines on the graph
+    * Shares a disturbing amount of code with the yLabels function below but hmm
+    */
+  def gridLines[S](precision: Int, opts: DrawingOptions[S]): Snip[NodeBuffer] =
+    current.flatMap { remainder =>
+      val yHeight = remainder.height / precision
+      (0 to precision).foldLeft(pure(new NodeBuffer)) { case (nb, y) =>
+        for {
+          buffer <- nb
+          box <- chopBottom(yHeight)
+        } yield buffer &+
+          <line
+            x1={box.startX.toString}
+            x2={box.endX.toString}
+            y1={box.endY.toString}
+            y2={box.endY.toString}
+            stroke={hexString(opts.grid)}
+          />
+      }
     }
 
   /**
     * Assuming a numeric Y axis, render graduations between 0 and the maximum value
     * with the given precision (i.e. a precision of 10 means 10 distinct points rendered)
     */
-  def yLabels(maxValue: BigDecimal, precision: Int): Snip[NodeBuffer] =
+  def yAxis[S](maxValue: BigDecimal, precision: Int, opts: DrawingOptions[S]): Snip[NodeBuffer] =
     current.flatMap { remainder =>
       val yHeight = remainder.height / precision
       (0 to precision).foldLeft(pure(new NodeBuffer)) { case (nb, y) =>
@@ -78,7 +101,7 @@ object Drawing {
               x2={box.endX.toString}
               y1={box.endY.toString}
               y2={box.endY.toString}
-              stroke="black"
+              stroke={hexString(opts.axes)}
             />
             <text
               text-anchor="end"
@@ -93,7 +116,7 @@ object Drawing {
           x2={remainder.endX.toString}
           y1={remainder.startY.toString}
           y2={remainder.endY.toString}
-          stroke="black"
+          stroke={hexString(opts.axes)}
         />
       }
     }
@@ -102,7 +125,7 @@ object Drawing {
     * Render a labelled graph X-Axis
     * into the given snipped bounding box
     */
-  def xLabels[X: Ordering, S: Ordering, V](data: DataTable[X, S, V]): Snip[NodeBuffer] =
+  def xAxis[X: Ordering, S: Ordering, V](data: DataTable[X, S, V], opts: DrawingOptions[S]): Snip[NodeBuffer] =
     current.flatMap { box =>
       val xWidth = box.width / data.values.size
       data.values.keys.foldLeft(pure(new NodeBuffer)) { case (nb, x) =>
@@ -122,7 +145,7 @@ object Drawing {
             x2={box.centreX.toString}
             y1={box.startY.toString}
             y2={(box.startY + graduationLength).toString}
-            stroke="black"
+            stroke={hexString(opts.axes)}
           />
       }.map { _ &+
         <line
@@ -130,7 +153,7 @@ object Drawing {
           x2={box.endX.toString}
           y1={box.startY.toString}
           y2={box.startY.toString}
-          stroke="black"
+          stroke={hexString(opts.axes)}
         />
       }
     }
@@ -153,7 +176,7 @@ object Drawing {
           } yield buffer &+
             <circle
               r={radius.toString}
-              fill={HexColor.hexString(opts.series(s))}
+              fill={hexString(opts.series(s))}
               cx={(current.startX + radius).toString}
               cy={current.centreY.toString}
             /> &+
@@ -180,10 +203,11 @@ object Drawing {
       for {
         _       <- pad(5, 50)
         title   <- use(chopTop(20), title(opts.title))
-        yAxis   <- use(chopLeft(60), chopBottom(80) >> yLabels(data.max, 10))
+        yAxis   <- use(chopLeft(60), chopBottom(80) >> yAxis(data.max, 10, opts))
         key     <- use(chopBottom(60), key(data, opts))
-        xAxis   <- use(chopBottom(20), xLabels(data))
+        xAxis   <- use(chopBottom(20), xAxis(data, opts))
+        grid    <- use(current, gridLines(10, opts))
         data    <- content
-      } yield svg(opts)(data &+ title &+ yAxis &+ key &+ xAxis)
+      } yield svg(opts)(grid &+ data &+ title &+ yAxis &+ key &+ xAxis)
     ).runA(BoundingBox(0, 0, opts.xSize, opts.ySize)).value
 }
