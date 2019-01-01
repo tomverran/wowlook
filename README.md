@@ -5,6 +5,15 @@
 A charting library for Scala and Scala JS.
 This is currently in the **very early** stages of development
 
+### Installation
+
+This library is available on Bintray, so in your `build.sbt`:
+
+```scala
+resolvers += Resolver.bintrayRepo("tomverran", "maven")
+libraryDependencies += "io.tvc" %% "wowlook" % "0.3.0" // replace %% with %%% for ScalaJS
+```
+
 ### Motiviation
 
 I wanted to generate some charts based on some data I have in both the backend
