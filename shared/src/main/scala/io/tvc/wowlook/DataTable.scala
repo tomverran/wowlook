@@ -3,6 +3,7 @@ package io.tvc.wowlook
 import cats.Monoid
 import cats.instances.list._
 import cats.instances.option._
+import cats.kernel.Semigroup
 import cats.syntax.foldable._
 import cats.syntax.functor._
 import cats.syntax.monoid._
@@ -44,13 +45,16 @@ object DataTable {
       DataTable(dt.values.updated(xAxis, dt.values.getOrElse(xAxis, SortedMap.empty[S, V]).updated(series, value)))
 
     /**
-      * Given a monoid for V add an element to this DataTable
+      * Given a semigroup for V add an element to this DataTable
       * but combine it with any existing element at the same X and series
       */
-    def add(x: X, series: S, value: V)(implicit V: Monoid[V]): DataTable[X, S, V] = {
-      val newValue = dt.values.getOrElse(x, SortedMap.empty[S, V]).getOrElse(series, V.empty) |+| value
-      replace(x, series, newValue)
-    }
+    def add(x: X, series: S, value: V)(implicit V: Semigroup[V]): DataTable[X, S, V] =
+      (
+        for {
+          s <- dt.values.get(x)
+          v <- s.get(series)
+        } yield v |+| value
+      ).fold(replace(x, series, value))(replace(x, series, _))
 
     /**
       * Given a list of X-Coordinate values,

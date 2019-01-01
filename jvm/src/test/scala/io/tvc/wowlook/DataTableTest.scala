@@ -37,7 +37,7 @@ class DataTableTest extends WordSpec with Matchers {
       emptyTable.add("x1", "s1", 1).add("x1", "s2", 1) shouldBe expected
     }
 
-    "Combine points at the same coordinate with a monoid instance" in {
+    "Combine points at the same coordinate with a semigroup instance" in {
       val expected = DataTable(SortedMap("x1" -> SortedMap("s1" -> 6)))
       emptyTable.add("x1", "s1", 1).add("x1", "s1", 5) shouldBe expected
     }
