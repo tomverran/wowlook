@@ -8,6 +8,7 @@ import io.tvc.wowlook.Snip._
 import scala.collection.immutable.SortedMap
 import scala.xml.{Elem, NodeBuffer}
 import Colour._
+import cats.Order
 
 case class BarGraph[X, S](
   data: DataTable[X, S, BigDecimal]
@@ -15,10 +16,10 @@ case class BarGraph[X, S](
 
 object BarGraph {
 
-  def empty[X: Ordering, S: Ordering] =
+  def empty[X: Order, S: Order] =
     BarGraph(data = DataTable.empty[X, S, BigDecimal])
 
-  implicit class BarGraphOps[X: Ordering, S: Ordering](graph: BarGraph[X, S]) {
+  implicit class BarGraphOps[X: Order, S: Order](graph: BarGraph[X, S]) {
 
     /**
       * Plot a point into this bar graph with the given X & series values

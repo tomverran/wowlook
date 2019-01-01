@@ -1,12 +1,10 @@
 package io.tvc.wowlook
 
-import cats.Monoid
-import cats.instances.list._
-import cats.instances.option._
-import cats.kernel.Semigroup
-import cats.syntax.foldable._
+import cats.instances.sortedMap._
+import cats.kernel.{CommutativeMonoid, Semigroup}
 import cats.syntax.functor._
 import cats.syntax.monoid._
+import cats.{Monoid, Order}
 
 import scala.collection.immutable.{SortedMap, SortedSet}
 import scala.language.higherKinds
@@ -21,14 +19,31 @@ case class DataTable[X, S, V](
 
 object DataTable {
 
-  def empty[X: Ordering, S: Ordering, V]: DataTable[X, S, V] =
-    DataTable(SortedMap.empty[X, SortedMap[S, V]])
+  def empty[X: Order, S: Order, V: Semigroup]: DataTable[X, S, V] =
+    monoid[X, S, V].empty
+
+  /**
+    * CommutativeMonoid instance for DataTable,
+    * based on the standard instance for SortedMap which intellij struggles to find
+    */
+  implicit def monoid[X: Order, S: Order, V: Semigroup]: CommutativeMonoid[DataTable[X, S, V]] = {
+    val underlying = catsStdMonoidForSortedMap[X, SortedMap[S, V]]
+    new CommutativeMonoid[DataTable[X, S, V]] {
+      def empty: DataTable[X, S, V] =
+        DataTable(underlying.empty)
+      def combine(x: DataTable[X, S, V], y: DataTable[X, S, V]): DataTable[X, S, V] =
+        DataTable(underlying.combine(x.values, y.values))
+    }
+  }
 
   /**
     * Most of the functions in here hopefully won't be used
     * and I'll delete them when I've got a few more chart types
     */
-  implicit class DataTableOps[X: Ordering, S: Ordering, V](dt: DataTable[X, S, V]) {
+  implicit class DataTableOps[X: Order, S: Order, V](dt: DataTable[X, S, V]) {
+
+    implicit val xOrdering: Ordering[X] = Order[X].toOrdering
+    implicit val sOrdering: Ordering[S] = Order[S].toOrdering
 
     /**
       * The main operation to be applied to this data table,
@@ -45,6 +60,13 @@ object DataTable {
       DataTable(dt.values.updated(xAxis, dt.values.getOrElse(xAxis, SortedMap.empty[S, V]).updated(series, value)))
 
     /**
+      * Given a partial function mapping series
+      * produce a new data table containing a new series
+      */
+    def collectSeries[S2: Order](f: PartialFunction[S, S2])(implicit V: Semigroup[V]): DataTable[X, S2, V] =
+      fold(DataTable.empty[X, S2, V])(x => s => v => t => if (f.isDefinedAt(s)) t.add(x, f(s), v) else t)
+
+    /**
       * Given a semigroup for V add an element to this DataTable
       * but combine it with any existing element at the same X and series
       */
@@ -55,17 +77,6 @@ object DataTable {
           v <- s.get(series)
         } yield v |+| value
       ).fold(replace(x, series, value))(replace(x, series, _))
-
-    /**
-      * Given a list of X-Coordinate values,
-      * add them to the data table with empty series
-      */
-    def padX(axes: List[X]): DataTable[X, S, V] =
-      DataTable(
-        axes.foldLeft(dt.values) { case (values, x) =>
-          values.updated(x, values.getOrElse(x, SortedMap.empty[S, V]))
-        }
-      )
 
     /**
       * How many x-coordinates are there in the table?
@@ -83,13 +94,7 @@ object DataTable {
     /**
       * Find the maximum value in the table
       */
-    def max(implicit ordering: Ordering[V], monoid: Monoid[V]): V =
+    def max(implicit ordering: Order[V], monoid: Monoid[V]): V =
       fold(monoid.empty)(_ => _ => (ordering.max _).curried)
-
-    /**
-      * Sum all the points within the given series
-      */
-    def sum(series: S)(implicit m: Monoid[V]): V =
-      dt.values.toList.foldMap[V] { case (_, v) => v.get(series).combineAll }
   }
 }

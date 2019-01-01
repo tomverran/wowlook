@@ -7,6 +7,7 @@ import cats.syntax.flatMap._
 import scala.xml.{Elem, NodeBuffer}
 import cats.instances.bigDecimal._
 import Snip._
+import cats.Order
 import io.tvc.wowlook.Colour.hexString
 
 import scala.collection.immutable.SortedSet
@@ -125,7 +126,7 @@ object Drawing {
     * Render a labelled graph X-Axis
     * into the given snipped bounding box
     */
-  def xAxis[X: Ordering, S: Ordering, V](data: DataTable[X, S, V], opts: DrawingOptions[S]): Snip[NodeBuffer] =
+  def xAxis[X: Order, S: Order, V](data: DataTable[X, S, V], opts: DrawingOptions[S]): Snip[NodeBuffer] =
     current.flatMap { box =>
       val xWidth = box.width / data.values.size
       data.values.keys.foldLeft(pure(new NodeBuffer)) { case (nb, x) =>
@@ -162,10 +163,11 @@ object Drawing {
     * Create a key explaining which series correspond to which colours on the graph
     * Designed to be displayed horizontally beneath the x-axis
     */
-  def key[X: Ordering, S: Ordering, V](data: DataTable[X, S, V], opts: DrawingOptions[S]): Snip[NodeBuffer] =
+  def key[X: Order, S: Order, V](data: DataTable[X, S, V], opts: DrawingOptions[S]): Snip[NodeBuffer] =
     current.flatMap { box =>
 
-      val series = data.values.map(_._2.keySet).foldLeft(SortedSet.empty[S]) { case (s, s1) => s ++ s1 }
+      val emptySet = SortedSet.empty[S](Order[S].toOrdering)
+      val series = data.values.map(_._2.keySet).foldLeft(emptySet) { case (s, s1) => s ++ s1 }
       val xWidth = box.width / series.size
       val radius = 6
 
@@ -194,7 +196,7 @@ object Drawing {
     * given enough information to construct axes
     * and a snip containing graph content to draw
     */
-  def entireGraph[X: Ordering, S: Ordering](
+  def entireGraph[X: Order, S: Order](
     data: DataTable[X, S, BigDecimal],
     opts: DrawingOptions[S],
     content: Snip[NodeBuffer]

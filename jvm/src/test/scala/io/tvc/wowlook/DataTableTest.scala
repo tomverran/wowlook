@@ -1,14 +1,31 @@
-package wowlook
+package io.tvc.wowlook
+
+import cats.instances.string._
 import org.scalatest.{Matchers, WordSpec}
 import cats.instances.int._
-import io.tvc.wowlook.DataTable
+import org.scalacheck.{Arbitrary, Gen, Prop}
+import org.scalatest.prop.Checkers
+import org.scalacheck.Prop._
+import cats.instances.list._
+import cats.syntax.foldable._
+import DataTable._
 
 import scala.collection.immutable.SortedMap
 
-class DataTableTest extends WordSpec with Matchers {
+class DataTableTest extends WordSpec with Matchers with Checkers {
 
-  // used in a whole bunch of tests
-  val emptyTable: DataTable[String, String, Int] = DataTable.empty[String, String, Int]
+  val emptyTable: DataTable[String, String, Int] =
+    DataTable.empty[String, String, Int]
+
+  val singleItemTable: Gen[DataTable[String, String, Int]] =
+    for {
+      x <- Arbitrary.arbString.arbitrary
+      s <- Arbitrary.arbString.arbitrary
+      v <- Arbitrary.arbInt.arbitrary
+    } yield emptyTable.add(x, s, v)
+
+  val multiItemTable: Gen[DataTable[String, String, Int]] =
+    Gen.listOf(singleItemTable).map(_.combineAll)
 
   "DataTable empty function" should {
 
@@ -40,6 +57,26 @@ class DataTableTest extends WordSpec with Matchers {
     "Combine points at the same coordinate with a semigroup instance" in {
       val expected = DataTable(SortedMap("x1" -> SortedMap("s1" -> 6)))
       emptyTable.add("x1", "s1", 1).add("x1", "s1", 5) shouldBe expected
+    }
+  }
+
+  "DataTable collectSeries function" should {
+
+    val emptyFunction: PartialFunction[String, String] =
+      PartialFunction.empty
+
+    val collectSeries: Prop = forAll(multiItemTable) { table =>
+      (table.collectSeries(emptyFunction) == emptyTable: Prop)  :| "collectSeries.empty" &&
+      (table.collectSeries { case s => s } == table: Prop)      :| "collectSeries.identity"
+    }
+
+    "Return empty tables and identical tables for empty + identity functions respectively" in {
+      check(collectSeries)
+    }
+
+    "Combine the values when multiple series are mapped down into one" in {
+      val result = emptyTable.add("x1", "s1", 1).add("x1", "s2", 1).collectSeries { case _ => "s3" }
+      result shouldBe emptyTable.add("x1", "s3", 2)
     }
   }
 }

@@ -3,8 +3,7 @@
 [![Build Status](https://travis-ci.org/tomverran/wowlook.svg?branch=master)](https://travis-ci.org/tomverran/wowlook) [![Download](https://api.bintray.com/packages/tomverran/maven/wowlook/images/download.svg) ](https://bintray.com/tomverran/maven/wowlook/_latestVersion)
 
 A charting library for Scala and Scala JS.
-This is currently in the **very early** stages of development so doesn't work really.
-I'm really only uploading this because I'd be sad if my PC died and I lost all the code.
+This is currently in the **very early** stages of development
 
 ### Motiviation
 
@@ -13,11 +12,11 @@ I wanted to generate some charts based on some data I have in both the backend
 trying to either use existing Java libraries or Google Charts with ScalaJS.
 
 As such this library generates simple (maybe _too_ simple) SVG charts.
-An example of use can be found in `jvm/.../Examples.scala`
+An example of use can be found in `examples/shared/.../Examples.scala`
 
 ### Screenshots
 
-These are screenshots of the examples in `jvm/.../Examples.scala`
+These are screenshots of the examples:
 
 #### Bar Chart
 

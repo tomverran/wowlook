@@ -1,11 +1,10 @@
-package wowlook
+package io.tvc.wowlook
 
-import io.tvc.wowlook.Colour
 import io.tvc.wowlook.Colour._
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen, _}
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.prop.Checkers
+import org.scalatest.{Matchers, WordSpec}
 
 import scala.language.implicitConversions
 

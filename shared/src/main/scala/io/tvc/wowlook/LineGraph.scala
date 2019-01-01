@@ -1,6 +1,6 @@
 package io.tvc.wowlook
 
-import cats.Show
+import cats.{Order, Show}
 import cats.instances.bigDecimal._
 import Drawing._
 import Snip._
@@ -15,10 +15,10 @@ final case class LineGraph[X, S](
 
 object LineGraph {
 
-  def empty[S: Ordering, X: Ordering]: LineGraph[X, S] =
+  def empty[S: Order, X: Order]: LineGraph[X, S] =
     LineGraph(DataTable.empty[X, S, BigDecimal])
 
-  implicit class LineGraphOps[X: Ordering, S: Ordering: Show](graph: LineGraph[X, S]) {
+  implicit class LineGraphOps[X: Order, S: Order: Show](graph: LineGraph[X, S]) {
 
     private val zero: BigDecimal =
       BigDecimal(0)
@@ -56,11 +56,12 @@ object LineGraph {
       Snip.current.flatMap { box =>
 
         // these operations are grim enough to not inline
+        val emptyMap = SortedMap.empty[S, String](Order[S].toOrdering)
         val xWidth = box.width / graph.data.values.size
         val allSeries = graph.data.series
         val maxValue = graph.data.max
 
-        graph.data.values.foldLeft(Snip.pure(SortedMap.empty[S, String])) { case (map, (_, series)) =>
+        graph.data.values.foldLeft(Snip.pure(emptyMap)) { case (map, (_, series)) =>
           for {
             accumulator <- map
             area <- chopLeft(xWidth)
