@@ -1,9 +1,9 @@
 language: scala
 scala:
-- 2.12.2
+- 2.13.4
 
 jdk:
-- oraclejdk8
+- oraclejdk11
 
 addons:
   apt:
