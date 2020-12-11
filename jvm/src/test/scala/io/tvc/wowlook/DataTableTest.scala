@@ -1,18 +1,19 @@
 package io.tvc.wowlook
 
-import cats.instances.string._
-import org.scalatest.{Matchers, WordSpec}
 import cats.instances.int._
-import org.scalacheck.{Arbitrary, Gen, Prop}
-import org.scalatest.prop.Checkers
-import org.scalacheck.Prop._
 import cats.instances.list._
+import cats.instances.string._
 import cats.syntax.foldable._
-import DataTable._
+import io.tvc.wowlook.DataTable._
+import org.scalacheck.Prop._
+import org.scalacheck.{Arbitrary, Gen, Prop}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.Checkers
 
 import scala.collection.immutable.SortedMap
 
-class DataTableTest extends WordSpec with Matchers with Checkers {
+class DataTableTest extends AnyWordSpec with Matchers with Checkers {
 
   val emptyTable: DataTable[String, String, Int] =
     DataTable.empty[String, String, Int]

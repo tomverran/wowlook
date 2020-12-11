@@ -3,12 +3,13 @@ package io.tvc.wowlook
 import io.tvc.wowlook.Colour._
 import org.scalacheck.Prop._
 import org.scalacheck.{Arbitrary, Gen, _}
-import org.scalatest.prop.Checkers
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.Checkers
 
 import scala.language.implicitConversions
 
-class ColourTest extends WordSpec with Checkers with Matchers {
+class ColourTest extends AnyWordSpec with Checkers with Matchers {
 
   val colour: Gen[Colour] =
     Arbitrary.arbInt.arbitrary.map(i => Colour(Math.abs(i % 16777215)))

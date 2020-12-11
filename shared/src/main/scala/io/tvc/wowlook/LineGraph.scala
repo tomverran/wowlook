@@ -40,7 +40,7 @@ object LineGraph {
     private def markers(opts: DrawingOptions[S]): Elem =
       <defs>
       {
-        graph.data.series.map { series =>
+        graph.data.series.toList.map { series =>
           <marker id={seriesSlug(series)} markerHeight="4" markerWidth="4" refX="2" refY="2">
             <circle cx="2" cy="2" r="2" stroke="none" fill={hexString(opts.series(series))}/>
           </marker>
@@ -68,13 +68,14 @@ object LineGraph {
           } yield {
             allSeries.foldLeft(accumulator) { case (acc, s) =>
               val c = s" ${area.centreX},${box.endY - ((series.getOrElse(s, zero) / maxValue) * box.height)}"
-              acc.updated(s, acc.getOrElse(s, "") + c)
+              acc + (s -> (acc.getOrElse(s, "") + c))
             }
           }
         }.map { lines =>
           lines.foldLeft(new NodeBuffer) { case (nb, (s, points)) =>
             nb &+ <polyline
               points={points}
+              stroke-width="2"
               marker-start={s"url(#${seriesSlug(s)})"}
               marker-mid={s"url(#${seriesSlug(s)})"}
               marker-end={s"url(#${seriesSlug(s)})"}
